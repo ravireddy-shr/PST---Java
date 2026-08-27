@@ -1,0 +1,29 @@
+class Solution {
+public:
+    int pivotIndex(vector<int>& nums) {
+        // Step 1: Calculate total sum of array
+        int totalSum = 0;
+        for (int num : nums) {
+            totalSum += num;
+        }
+        
+        int leftSum = 0;
+        
+        // Step 2: Iterate through each index
+        for (int i = 0; i < nums.size(); i++) {
+            // rightSum = totalSum - leftSum - current element
+            int rightSum = totalSum - leftSum - nums[i];
+            
+            // Step 3: Check if left sum equals right sum
+            if (leftSum == rightSum) {
+                return i;  // Found pivot index, return immediately
+            }
+            
+            // Update leftSum for next iteration
+            leftSum += nums[i];
+        }
+        
+        // Step 4: No pivot found
+        return -1;
+    }
+};

@@ -1,0 +1,42 @@
+import java.util.*;
+
+class Student {
+    String name;
+    int marks;
+
+    Student(String name, int marks) {
+        this.name = name;
+        this.marks = marks;
+    }
+}
+
+public class Solution {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        int n = sc.nextInt();
+
+        List<Student> list = new ArrayList<>();
+        for (int i = 0; i < n; i++) {
+            String name = sc.next();
+            int marks = sc.nextInt();
+            list.add(new Student(name, marks));
+        }
+
+        // Sort by marks descending, then name ascending
+        Collections.sort(list, new Comparator<Student>() {
+            @Override
+            public int compare(Student s1, Student s2) {
+                if (s2.marks != s1.marks) {
+                    return s2.marks - s1.marks; // higher marks first
+                } else {
+                    return s1.name.compareTo(s2.name); // alphabetical
+                }
+            }
+        });
+
+        // Print result
+        for (Student s : list) {
+            System.out.println(s.name + " " + s.marks);
+        }
+    }
+}
