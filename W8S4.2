@@ -1,0 +1,50 @@
+import java.util.*;
+
+interface Food {
+    String getType();
+}
+
+class Pizza implements Food {
+    public String getType() {
+        return "Fast Food!";
+    }
+}
+
+class Cake implements Food {
+    public String getType() {
+        return "Dessert!";
+    }
+}
+
+class FoodFactory {
+
+    public Food getFood(String order) {
+        if (order.equals("pizza")) {
+            return new Pizza();
+        } else if (order.equals("cake")) {
+            return new Cake();
+        }
+        return null;
+    }
+}
+
+public class Solution {
+    public static void main(String[] args) {
+
+        Scanner sc = new Scanner(System.in);
+
+        String order = sc.nextLine();
+
+        FoodFactory factory = new FoodFactory();
+        Food food = factory.getFood(order);
+
+        System.out.println(
+            "The factory returned class " +
+            food.getClass().getSimpleName()
+        );
+
+        System.out.println(
+            "Someone ordered a " + food.getType()
+        );
+    }
+}

@@ -1,0 +1,45 @@
+import java.util.*;
+
+class UndergroundSystem {
+    // Track active check-ins: id -> (stationName, time)
+    private Map<Integer, Pair> checkIns;
+    // Track travel data: "startStation->endStation" -> (totalTime, tripCount)
+    private Map<String, double[]> travelData;
+
+    public UndergroundSystem() {
+        checkIns = new HashMap<>();
+        travelData = new HashMap<>();
+    }
+
+    public void checkIn(int id, String stationName, int t) {
+        checkIns.put(id, new Pair(stationName, t));
+    }
+
+    public void checkOut(int id, String stationName, int t) {
+        Pair checkInInfo = checkIns.get(id);
+        checkIns.remove(id);
+
+        String route = checkInInfo.station + "->" + stationName;
+        int travelTime = t - checkInInfo.time;
+
+        travelData.putIfAbsent(route, new double[2]);
+        travelData.get(route)[0] += travelTime; // total time
+        travelData.get(route)[1] += 1;          // trip count
+    }
+
+    public double getAverageTime(String startStation, String endStation) {
+        String route = startStation + "->" + endStation;
+        double[] stats = travelData.get(route);
+        return stats[0] / stats[1];
+    }
+
+    // Helper class to store check-in info
+    private static class Pair {
+        String station;
+        int time;
+        Pair(String station, int time) {
+            this.station = station;
+            this.time = time;
+        }
+    }
+}
