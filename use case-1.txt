@@ -1,0 +1,272 @@
+import java.util.*;
+import java.time.*;
+import java.time.temporal.ChronoUnit;
+class Vehicle {
+    String vehicleNumber;
+    String vehicleType;
+    int level;
+    int slot;
+    LocalDateTime entryTime;
+    boolean priority;
+    Vehicle(String vehicleNumber, String vehicleType,
+            int level, int slot, boolean priority) {
+        this.vehicleNumber = vehicleNumber;
+        this.vehicleType = vehicleType;
+        this.level = level;
+        this.slot = slot;
+        this.priority = priority;
+        this.entryTime = LocalDateTime.now();
+    }
+}
+public class SmartParkingSystem {
+    static final int LEVELS = 3;
+    static final int SLOTS_PER_LEVEL = 10;
+    static boolean[][] parkingSlots =
+            new boolean[LEVELS][SLOTS_PER_LEVEL];
+    static Map<String, Vehicle> parkedVehicles =
+            new HashMap<>();
+    static double totalRevenue = 0;
+    static Scanner sc = new Scanner(System.in);
+    // Find nearest available parking slot
+    static int[] findAvailableSlot(boolean priority) {
+        for (int level = 0; level < LEVELS; level++) {
+            for (int slot = 0; slot < SLOTS_PER_LEVEL; slot++) {
+                if (!parkingSlots[level][slot]) {
+                    return new int[]{level, slot};
+                }
+            }
+        }
+        return null;
+    }
+    // Vehicle Entry
+    static void vehicleEntry() {
+        System.out.println("\n========== VEHICLE ENTRY ==========");
+        System.out.print("Enter vehicle number: ");
+        String number = sc.nextLine().toUpperCase();
+        if (parkedVehicles.containsKey(number)) {
+            System.out.println("Vehicle is already parked!");
+            return;
+        }
+        System.out.print("Enter vehicle type (Car/Bike/Truck): ");
+        String type = sc.nextLine();
+        System.out.print("Is this a priority vehicle? (yes/no): ");
+        String priorityInput = sc.nextLine();
+        boolean priority =
+                priorityInput.equalsIgnoreCase("yes");
+        int[] slot = findAvailableSlot(priority);
+        if (slot == null) {
+            System.out.println("Parking Full!");
+            return;
+        }
+        int level = slot[0];
+        int slotNumber = slot[1];
+        parkingSlots[level][slotNumber] = true;
+        Vehicle vehicle = new Vehicle(
+                number,
+                type,
+                level + 1,
+                slotNumber + 1,
+                priority
+        );
+        parkedVehicles.put(number, vehicle);
+        System.out.println("\nVehicle Entry Successful!");
+        System.out.println("Vehicle Number : " + number);
+        System.out.println("Vehicle Type   : " + type);
+        System.out.println("Parking Level  : " + (level + 1));
+        System.out.println("Parking Slot   : " + (slotNumber + 1));
+        System.out.println("Priority       : " +
+                (priority ? "Yes" : "No"));
+        System.out.println("Entry Time     : " +
+                vehicle.entryTime);
+    }
+    // Calculate parking fee
+    static double calculateFee(Vehicle vehicle) {
+        LocalDateTime exitTime = LocalDateTime.now();
+        long minutes =
+                ChronoUnit.MINUTES.between(
+                        vehicle.entryTime,
+                        exitTime
+                );
+        long hours = Math.max(1, (minutes + 59) / 60);
+        double rate;
+        if (vehicle.vehicleType.equalsIgnoreCase("Bike")) {
+            rate = 20;
+        }
+        else if (vehicle.vehicleType.equalsIgnoreCase("Car")) {
+            rate = 40;
+        }
+        else {
+            rate = 60;
+        }
+        return hours * rate;
+    }
+    // Vehicle Exit
+    static void vehicleExit() {
+        System.out.println("\n========== VEHICLE EXIT ==========");
+        System.out.print("Enter vehicle number: ");
+        String number = sc.nextLine().toUpperCase();
+        Vehicle vehicle = parkedVehicles.get(number);
+        if (vehicle == null) {
+            System.out.println("Vehicle not found!");
+            return;
+        }
+        LocalDateTime exitTime = LocalDateTime.now();
+        long minutes =
+                ChronoUnit.MINUTES.between(
+                        vehicle.entryTime,
+                        exitTime
+                );
+        long hours = Math.max(1, (minutes + 59) / 60);
+        double fee = calculateFee(vehicle);
+        parkingSlots[
+                vehicle.level - 1
+        ][
+                vehicle.slot - 1
+        ] = false;
+        parkedVehicles.remove(number);
+        totalRevenue += fee;
+        System.out.println("\n========== PARKING BILL ==========");
+        System.out.println("Vehicle Number : " +
+                vehicle.vehicleNumber);
+        System.out.println("Vehicle Type   : " +
+                vehicle.vehicleType);
+        System.out.println("Parking Level  : " +
+                vehicle.level);
+        System.out.println("Parking Slot   : " +
+                vehicle.slot);
+        System.out.println("Entry Time     : " +
+                vehicle.entryTime);
+        System.out.println("Exit Time      : " +
+                exitTime);
+        System.out.println("Duration       : " +
+                hours + " hour(s)");
+        System.out.println("Parking Fee    : ₹" +
+                fee);
+        System.out.println("\nVehicle Exit Successful!");
+    }
+    // Display parked vehicles
+    static void displayParkedVehicles() {
+        System.out.println("\n========== PARKED VEHICLES ==========");
+        if (parkedVehicles.isEmpty()) {
+            System.out.println("No vehicles currently parked.");
+            return;
+        }
+        for (Vehicle vehicle : parkedVehicles.values()) {
+            System.out.println("--------------------------------");
+            System.out.println("Vehicle Number : " +
+                    vehicle.vehicleNumber);
+            System.out.println("Vehicle Type   : " +
+                    vehicle.vehicleType);
+            System.out.println("Level          : " +
+                    vehicle.level);
+            System.out.println("Slot           : " +
+                    vehicle.slot);
+            System.out.println("Priority       : " +
+                    (vehicle.priority ? "Yes" : "No"));
+            System.out.println("Entry Time     : " +
+                    vehicle.entryTime);
+        }
+    }
+    // Display parking slots
+    static void displayParkingSlots() {
+        System.out.println("\n========== PARKING SLOT STATUS ==========");
+        for (int i = 0; i < LEVELS; i++) {
+            System.out.println("\nLevel " + (i + 1));
+            for (int j = 0; j < SLOTS_PER_LEVEL; j++) {
+                String status =
+                        parkingSlots[i][j]
+                                ? "Occupied"
+                                : "Available";
+                System.out.println(
+                        "Slot " + (j + 1) +
+                        " : " + status
+                );
+            }
+        }
+    }
+    // Generate parking report
+    static void generateReport() {
+        int totalSlots =
+                LEVELS * SLOTS_PER_LEVEL;
+        int occupiedSlots =
+                parkedVehicles.size();
+        int availableSlots =
+                totalSlots - occupiedSlots;
+        System.out.println("\n========== PARKING REPORT ==========");
+        System.out.println("Total Levels        : " +
+                LEVELS);
+        System.out.println("Slots Per Level     : " +
+                SLOTS_PER_LEVEL);
+        System.out.println("Total Parking Slots : " +
+                totalSlots);
+        System.out.println("Occupied Slots      : " +
+                occupiedSlots);
+        System.out.println("Available Slots     : " +
+                availableSlots);
+        System.out.println("Currently Parked    : " +
+                parkedVehicles.size());
+        System.out.println("Total Revenue       : ₹" +
+                totalRevenue);
+        System.out.println("====================================");
+    }
+    // Main method
+    public static void main(String[] args) {
+        while (true) {
+System.out.println("\n========================================");
+            System.out.println("     SMART PARKING MANAGEMENT SYSTEM");
+     System.out.println("========================================");
+            System.out.println("1. Vehicle Entry");
+            System.out.println("2. Vehicle Exit");
+            System.out.println("3. Display Parked Vehicles");
+            System.out.println("4. Display Parking Slots");
+            System.out.println("5. Generate Parking Report");
+            System.out.println("6. Exit System");
+            System.out.print("\nEnter your choice: ");
+            String input = sc.nextLine();
+            int choice;
+            try {
+                choice = Integer.parseInt(input);
+            }
+            catch (NumberFormatException e) {
+                System.out.println(
+                        "Please enter a valid number."
+                );
+                continue;
+            }
+            switch (choice) {
+                case 1:
+                    vehicleEntry();
+                    break;
+                case 2:
+                    vehicleExit();
+                    break;
+                case 3:
+                    displayParkedVehicles();
+                    break;
+                case 4:
+                    displayParkingSlots();
+                    break;
+                case 5:
+                    generateReport();
+                    break;
+                case 6:
+                    System.out.println(
+                            "Thank you for using Smart Parking System!"
+                    );
+                    sc.close();
+                    return;
+                default:
+                    System.out.println(
+                            "Invalid choice. Please try again."
+                    );
+            }
+        }
+    }
+}
+
+
+
+
+
+
+

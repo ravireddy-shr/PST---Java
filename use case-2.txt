@@ -1,0 +1,159 @@
+import java.util.ArrayList;
+import java.util.Scanner;
+class Product {
+    int productId;
+    String productName;
+    double price;
+    int quantity;
+    Product(int productId, String productName,
+            double price, int quantity) {
+        this.productId = productId;
+        this.productName = productName;
+        this.price = price;
+        this.quantity = quantity;
+    }
+    double getAmount() {
+        return price * quantity;
+    }
+}
+public class SupermarketBillingSystem {
+    static Scanner sc = new Scanner(System.in);
+    static ArrayList<Product> cart =
+            new ArrayList<Product>();
+    public static void main(String[] args) {
+        System.out.println(
+            "========================================");
+        System.out.println(
+            "       SUPERMARKET BILLING SYSTEM");
+        System.out.println(
+            "========================================");
+        System.out.print(
+            "Enter number of products: ");
+        int n = sc.nextInt();
+        sc.nextLine();
+        // Add products to cart
+        for (int i = 0; i < n; i++) {
+            System.out.println(
+                "\nEnter details for Product "
+                + (i + 1));
+            System.out.print("Product ID: ");
+            int id = sc.nextInt();
+            sc.nextLine();
+            System.out.print("Product Name: ");
+            String name = sc.nextLine();
+            System.out.print("Price: Rs.");
+            double price = sc.nextDouble();
+            System.out.print("Quantity: ");
+            int quantity = sc.nextInt();
+            Product p = new Product(
+                id, name, price, quantity);
+            cart.add(p);
+        }
+        // Calculate subtotal
+        double subtotal = 0;
+        for (Product p : cart) {
+            subtotal += p.getAmount();
+        }
+        // Apply normal discount
+        double discount = 0;
+        if (subtotal >= 5000) {
+            discount = subtotal * 0.10;
+        }
+        else if (subtotal >= 2000) {
+            discount = subtotal * 0.05;
+        }
+        double amountAfterDiscount =
+            subtotal - discount;
+        // Coupon
+        sc.nextLine();
+        System.out.print(
+            "\nDo you have a coupon? (yes/no): ");
+        String coupon = sc.nextLine();
+        double couponDiscount = 0;
+        if (coupon.equalsIgnoreCase("yes")) {
+            System.out.print(
+                "Enter coupon code: ");
+            String code = sc.nextLine();
+            if (code.equalsIgnoreCase("SAVE10")) {
+                couponDiscount =
+                    amountAfterDiscount * 0.10;
+                System.out.println(
+                    "Coupon applied: 10% discount");
+            }
+            else if (code.equalsIgnoreCase("SAVE20")) {
+                couponDiscount =
+                    amountAfterDiscount * 0.20;
+                System.out.println(
+                    "Coupon applied: 20% discount");
+            }
+            else {
+                System.out.println(
+                    "Invalid coupon code!");
+            }
+        }
+        // Calculate final amount
+        double finalAmount =
+            amountAfterDiscount - couponDiscount;
+        // Generate invoice
+        System.out.println(
+            "\n==============================================");
+
+        System.out.println(
+            "              CUSTOMER INVOICE");
+        System.out.println(
+            "==============================================");
+        System.out.printf(
+            "%-8s %-15s %-10s %-8s %-10s%n",
+            "ID",
+            "Product",
+            "Price",
+            "Qty",
+            "Amount");
+        System.out.println(
+            "----------------------------------------------");
+        for (Product p : cart) {
+            System.out.printf(
+                "%-8d %-15s Rs.%-7.2f %-8d Rs.%-8.2f%n",
+                p.productId,
+                p.productName,
+                p.price,
+                p.quantity,
+                p.getAmount());
+        }
+        System.out.println(
+            "----------------------------------------------");
+
+        System.out.printf(
+            "Subtotal          : Rs.%.2f%n",
+            subtotal);
+
+        System.out.printf(
+            "Discount           : Rs.%.2f%n",
+            discount);
+
+        System.out.printf(
+            "Coupon Discount    : Rs.%.2f%n",
+            couponDiscount);
+
+        System.out.printf(
+            "Final Bill Amount  : Rs.%.2f%n",
+            finalAmount);
+
+        System.out.println(
+            "==============================================");
+        System.out.println(
+            "        Thank you for shopping!");
+
+        System.out.println(
+            "==============================================");
+    }
+
+
+
+
+
+
+
+
+
+
